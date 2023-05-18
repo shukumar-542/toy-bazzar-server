@@ -1,5 +1,5 @@
 const express = require('express');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express();
 const cors = require('cors');
 const port = process.env.PORT || 5000;
@@ -34,11 +34,20 @@ async function run() {
 
     const result = await toyCollection.createIndex(indexKey, indexOption)
 
+
+    // ---------- Get 20 toys by using limit------
     app.get('/toys', async (req, res) => {
-      const result = await toyCollection.find().toArray()
+      const result = await toyCollection.find().limit(20).toArray()
       res.send(result)
     })
 
+    // ----get all toys search by email
+    app.get('/myToys/:email', async(req,res)=>{
+      const email = req.params.email;
+      const result = await toyCollection.find({email : email}).toArray()
+      res.send(result)
+      
+    })
 
     // ---------search toy by name-----------
     app.get('/searchToy/:text', async(req,res)=>{
@@ -46,6 +55,14 @@ async function run() {
       const result = await toyCollection.find({
         $or : [{name : {$regex:text , $options : "i"} }]
       }).toArray()
+      res.send(result)
+    })
+
+    // -----show toy details by id
+    app.get('/toy/:id',async(req,res)=>{
+      const id = req.params.id;
+      const query = {_id :  new ObjectId(id)}
+      const result = await toyCollection.findOne(query)
       res.send(result)
     })
 
