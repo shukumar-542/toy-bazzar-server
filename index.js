@@ -58,13 +58,20 @@ async function run() {
       res.send(result)
     })
 
-    // -----show toy details by id-----
+    // -----show toy details by id---------------//
     app.get('/toy/:id',async(req,res)=>{
       const id = req.params.id;
       const query = {_id :  new ObjectId(id)}
       const result = await toyCollection.findOne(query)
       res.send(result)
     })
+    // ----------find toy by category name------------//
+    app.get('/toys/:text', async(req,res)=>{
+      console.log(req.params.text); 
+      const result = await toyCollection.find({category : req.params.text}).toArray()
+      res.send(result)
+     
+  })
     // ----------inset data into database-------------
     app.post('/addToy', async (req, res) => {
       const body = req.body
