@@ -29,11 +29,27 @@ async function run() {
 
     const toyCollection = client.db('toyProducts').collection('toy')
 
-    app.get('/toys',async(req,res)=>{
+    const indexKey = { name: 1};
+    const indexOption = { name: 'name' }
+
+    const result = await toyCollection.createIndex(indexKey, indexOption)
+
+    app.get('/toys', async (req, res) => {
       const result = await toyCollection.find().toArray()
       res.send(result)
     })
-    app.post('/addToy',async(req,res)=>{
+
+
+    // ---------search toy by name-----------
+    app.get('/searchToy/:text', async(req,res)=>{
+      const text = req.params.text;
+      const result = await toyCollection.find({
+        $or : [{name : {$regex:text , $options : "i"} }]
+      }).toArray()
+      res.send(result)
+    })
+
+    app.post('/addToy', async (req, res) => {
       const body = req.body
       const result = await toyCollection.insertOne(body);
       res.send(result)
@@ -51,10 +67,10 @@ async function run() {
 run().catch(console.dir);
 
 
-app.get('/',(req,res)=>{
-    res.send('toy bazar is running')
+app.get('/', (req, res) => {
+  res.send('toy bazar is running')
 })
 
-app.listen(port,()=>{
-    console.log(`listening on port ${port}`);
+app.listen(port, () => {
+  console.log(`listening on port ${port}`);
 })
