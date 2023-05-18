@@ -41,7 +41,7 @@ async function run() {
       res.send(result)
     })
 
-    // ----get all toys search by email
+    // ----------get all toys search by email----------
     app.get('/myToys/:email', async(req,res)=>{
       const email = req.params.email;
       const result = await toyCollection.find({email : email}).toArray()
@@ -58,19 +58,29 @@ async function run() {
       res.send(result)
     })
 
-    // -----show toy details by id
+    // -----show toy details by id-----
     app.get('/toy/:id',async(req,res)=>{
       const id = req.params.id;
       const query = {_id :  new ObjectId(id)}
       const result = await toyCollection.findOne(query)
       res.send(result)
     })
-
+    // ----------inset data into database-------------
     app.post('/addToy', async (req, res) => {
       const body = req.body
       const result = await toyCollection.insertOne(body);
       res.send(result)
     })
+
+    // -----------delete data form data base-----------
+    app.delete('/toy/:id', async(req,res)=>{
+      const id = req.params.id;
+      const query = {_id : new ObjectId(id)};
+      const result = await toyCollection.deleteOne(query)
+      res.send(result)
+    })
+
+
 
 
     // Send a ping to confirm a successful connection
