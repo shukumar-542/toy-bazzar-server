@@ -72,6 +72,9 @@ async function run() {
       res.send(result)
     })
 
+    // -----------update data form database-----------//
+    
+
     // -----------delete data form data base-----------
     app.delete('/toy/:id', async(req,res)=>{
       const id = req.params.id;
