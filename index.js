@@ -73,7 +73,19 @@ async function run() {
     })
 
     // -----------update data form database-----------//
-    
+    app.patch('/update/:id', async(req,res)=>{
+      const id = req.params.id;
+      const query = {_id : new ObjectId(id)}
+      const updateToy = req.body;
+      const toys = {
+        $set : {
+          ...updateToy
+        }
+      }
+      const result = await toyCollection.updateOne(query,toys)
+      res.send(result)
+
+    })
 
     // -----------delete data form data base-----------
     app.delete('/toy/:id', async(req,res)=>{
