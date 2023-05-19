@@ -37,15 +37,22 @@ async function run() {
 
     // ---------- Get 20 toys by using limit------
     app.get('/toys', async (req, res) => {
-      const result = await toyCollection.find().limit(20).toArray()
+      const result = await toyCollection.find().sort({price : -1}).limit(20).toArray()
       res.send(result)
     })
 
     // ----------get all toys search by email----------
     app.get('/myToys/:email', async(req,res)=>{
+      console.log(req.query.value);
       const email = req.params.email;
-      const result = await toyCollection.find({email : email}).toArray()
-      res.send(result)
+      if(req.query.value === 'ascending'){
+        const result = await toyCollection.find({email : email}).sort({price : 1}).toArray();
+        return res.send(result)
+      }else{
+        const result = await toyCollection.find({email : email}).sort({price : -1}).toArray();
+        res.send(result)
+      }
+      
       
     })
 
@@ -75,6 +82,7 @@ async function run() {
     // ----------inset data into database-------------
     app.post('/addToy', async (req, res) => {
       const body = req.body
+     
       const result = await toyCollection.insertOne(body);
       res.send(result)
     })
