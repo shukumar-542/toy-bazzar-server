@@ -1,9 +1,9 @@
 const express = require('express');
+require('dotenv').config()
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express();
 const cors = require('cors');
 const port = process.env.PORT || 5000;
-require('dotenv').config()
 
 
 // middleware
@@ -19,26 +19,35 @@ const client = new MongoClient(uri, {
     version: ServerApiVersion.v1,
     strict: true,
     deprecationErrors: true,
-  }
+  },
+  // useNewUrlParser: true,
+  // useUnifiedTopology :true,
+  // maxPoolSize :10,
+ 
 });
 
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    // await client.connect();
+    // client.connect((err)=>{
+    //   if(err){
+    //     console.log(err);
+    //     return
+    //   }
+    // });
 
     const toyCollection = client.db('toyProducts').collection('toy')
 
-    const indexKey = { name: 1};
-    const indexOption = { name: 'name' }
+    // const indexKey = { name: 1};
+    // const indexOption = { name: 'name' }
 
-    const result = await toyCollection.createIndex(indexKey, indexOption)
+    // const result = await toyCollection.createIndex(indexKey, indexOption)
 
 
     // ---------- Get 20 toys by using limit------
     app.get('/toys', async (req, res) => {
       const result = await toyCollection.find().sort({price : -1}).limit(20).toArray()
-      res.send(result)
+      res.json(result)
     })
 
     // ----------get all toys search by email----------
@@ -47,10 +56,10 @@ async function run() {
       const email = req.params.email;
       if(req.query.value === 'ascending'){
         const result = await toyCollection.find({email : email}).sort({price : 1}).toArray();
-        return res.send(result)
+        return res.json(result)
       }else{
         const result = await toyCollection.find({email : email}).sort({price : -1}).toArray();
-        res.send(result)
+        res.json(result)
       }
       
       
@@ -58,25 +67,26 @@ async function run() {
 
     // ---------search toy by name-----------
     app.get('/searchToy/:text', async(req,res)=>{
+      console.log(req.params.text);
       const text = req.params.text;
       const result = await toyCollection.find({
         $or : [{name : {$regex:text , $options : "i"} }]
       }).toArray()
-      res.send(result)
+      res.json(result)
     })
 
     // -----show toy details by id---------------//
     app.get('/toy/:id',async(req,res)=>{
-      const id = req.params.id;
+      // const id = req.params.id;
       const query = {_id :  new ObjectId(id)}
       const result = await toyCollection.findOne(query)
-      res.send(result)
+      res.json(result)
     })
     // ----------find toy by category name------------//
     app.get('/toys/:text', async(req,res)=>{
       console.log(req.params.text); 
       const result = await toyCollection.find({category : req.params.text}).toArray()
-      res.send(result)
+      res.json(result)
      
   })
     // ----------inset data into database-------------
@@ -84,7 +94,7 @@ async function run() {
       const body = req.body
      
       const result = await toyCollection.insertOne(body);
-      res.send(result)
+      res.json(result)
     })
 
     // -----------update data form database-----------//
@@ -98,7 +108,7 @@ async function run() {
         }
       }
       const result = await toyCollection.updateOne(query,toys)
-      res.send(result)
+      res.json(result)
 
     })
 
@@ -107,15 +117,15 @@ async function run() {
       const id = req.params.id;
       const query = {_id : new ObjectId(id)};
       const result = await toyCollection.deleteOne(query)
-      res.send(result)
+      res.json(result)
     })
 
 
 
 
     // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
+    // await client.db("admin").command({ ping: 1 });
+    // console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();
@@ -125,7 +135,7 @@ run().catch(console.dir);
 
 
 app.get('/', (req, res) => {
-  res.send('toy bazar is running')
+  res.json('toy bazar is running')
 })
 
 app.listen(port, () => {
